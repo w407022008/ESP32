@@ -50,19 +50,19 @@ static const char *TAG = "DB_ESP32";
 
 uint8_t DB_WIFI_MODE = DB_WIFI_MODE_AP;
 uint8_t DB_WIFI_MODE_DESIGNATED = DB_WIFI_MODE_AP;  // initially assign the same value as DB_WIFI_MODE
-uint8_t DB_WIFI_SSID[32] = "DroneBridge for ESP32";
+uint8_t DB_WIFI_SSID[32] = "DroneBridge";
 uint8_t DB_WIFI_PWD[64] = "dronebridge";
 char DEFAULT_AP_IP[IP4ADDR_STRLEN_MAX] = "192.168.2.1";
 char DB_STATIC_STA_IP[IP4ADDR_STRLEN_MAX] = "";
 char DB_STATIC_STA_IP_GW[IP4ADDR_STRLEN_MAX] = "";
 char DB_STATIC_STA_IP_NETMASK[IP4ADDR_STRLEN_MAX] = "";
 char CURRENT_CLIENT_IP[IP4ADDR_STRLEN_MAX] = "192.168.2.1";
-uint8_t DB_WIFI_CHANNEL = 6;
-uint8_t DB_SERIAL_PROTOCOL = DB_SERIAL_PROTOCOL_MAVLINK;
+uint8_t DB_WIFI_CHANNEL = 11;
+uint8_t DB_SERIAL_PROTOCOL = DB_SERIAL_PROTOCOL_TRANSPARENT;
 
 // initially set pins to 0 to allow the start of the system on all boards. User has to set the correct pins
-uint8_t DB_UART_PIN_TX = GPIO_NUM_0;
-uint8_t DB_UART_PIN_RX = GPIO_NUM_0;
+uint8_t DB_UART_PIN_TX = GPIO_NUM_4;
+uint8_t DB_UART_PIN_RX = GPIO_NUM_5;
 uint8_t DB_UART_PIN_RTS = GPIO_NUM_0;
 uint8_t DB_UART_PIN_CTS = GPIO_NUM_0;
 uint8_t DB_UART_RTS_THRESH = 64;
@@ -80,7 +80,7 @@ uint8_t DB_UART_RTS_THRESH = 64;
     #define DB_RESET_PIN GPIO_NUM_0
 #endif
 
-int32_t DB_UART_BAUD_RATE = 57600;
+int32_t DB_UART_BAUD_RATE = 921600;
 uint16_t DB_TRANS_BUF_SIZE = 128;
 uint8_t DB_LTM_FRAME_NUM_BUFFER = 2;
 db_esp_signal_quality_t db_esp_signal_quality = {.air_rssi = -127, .air_noise_floor = -1, .gnd_rssi= -127, .gnd_noise_floor = -1};
@@ -213,12 +213,12 @@ void start_mdns_service() {
         return;
     }
     ESP_ERROR_CHECK(mdns_hostname_set("dronebridge"));
-    ESP_ERROR_CHECK(mdns_instance_name_set("DroneBridge for ESP32"));
+    ESP_ERROR_CHECK(mdns_instance_name_set("DroneBridge"));
 
     ESP_ERROR_CHECK(mdns_service_add(NULL, "_http", "_tcp", 80, NULL, 0));
     ESP_ERROR_CHECK(mdns_service_add(NULL, "_db_proxy", "_tcp", APP_PORT_PROXY, NULL, 0));
     ESP_ERROR_CHECK(mdns_service_add(NULL, "_db_comm", "_tcp", APP_PORT_COMM, NULL, 0));
-    ESP_ERROR_CHECK(mdns_service_instance_name_set("_http", "_tcp", "DroneBridge for ESP32"));
+    ESP_ERROR_CHECK(mdns_service_instance_name_set("_http", "_tcp", "DroneBridge"));
     ESP_LOGI(TAG, "MDNS Service started!");
 }
 
@@ -597,7 +597,7 @@ void db_read_settings_nvs() {
 void short_press_callback(void *arg,void *usr_data) {
     ESP_LOGW(TAG, "Short press detected setting wifi mode to access point with password: dronebridge");
     DB_WIFI_MODE_DESIGNATED = DB_WIFI_MODE_AP;  // do not directly change DB_WIFI_MODE since it is not safe and constantly processed by other tasks. Save settings and reboot will assign DB_WIFI_MODE_DESIGNATED to DB_WIFI_MODE.
-    strncpy((char *) DB_WIFI_SSID, "DroneBridge for ESP32", sizeof(DB_WIFI_SSID) - 1);
+    strncpy((char *) DB_WIFI_SSID, "DroneBridge", sizeof(DB_WIFI_SSID) - 1);
     strncpy((char *) DB_WIFI_PWD, "dronebridge", sizeof(DB_WIFI_PWD) - 1);
     db_write_settings_to_nvs();
     esp_restart();
@@ -611,7 +611,7 @@ void short_press_callback(void *arg,void *usr_data) {
 void long_press_callback(void *arg,void *usr_data) {
     ESP_LOGW(TAG, "Reset triggered via GPIO %i. Resetting settings and rebooting", DB_RESET_PIN);
     DB_WIFI_MODE_DESIGNATED = DB_WIFI_MODE_AP;  // do not directly change DB_WIFI_MODE since it is not safe and constantly processed by other tasks. Save settings and reboot will assign DB_WIFI_MODE_DESIGNATED to DB_WIFI_MODE.
-    strncpy((char *) DB_WIFI_SSID, "DroneBridge for ESP32", sizeof(DB_WIFI_SSID) - 1);
+    strncpy((char *) DB_WIFI_SSID, "DroneBridge", sizeof(DB_WIFI_SSID) - 1);
     strncpy((char *) DB_WIFI_PWD, "dronebridge", sizeof(DB_WIFI_PWD) - 1);
     strncpy(DEFAULT_AP_IP, "192.168.2.1", sizeof(DEFAULT_AP_IP) - 1);
     memset(DB_STATIC_STA_IP, 0, strlen(DB_STATIC_STA_IP));

@@ -19,3 +19,5 @@ dependencies.lock
 frontend/node_modules
 *.old
 /node_modules
+.vscode
+frontend/package-lock.json
